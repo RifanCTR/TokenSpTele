@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy"
+        content="connect-src https://api.telegram.org; base-uri 'none'; form-action 'none'">
+
+  <title>Telegram Message Tester</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <div class="brand">TELEGRAM TESTER</div>
+    <div class="subtitle">Message & Media Testing Tool</div>
+  </div>
+  <span id="badge" class="badge" data-state="idle">Offline</span>
+</header>
+
+<main class="container">
+
+  <section class="card">
+    <h2>Bot Connection</h2>
+
+    <label for="token">Bot Token</label>
+    <div class="input-row">
+      <input id="token" type="password"
+             placeholder="Enter your bot token"
+             autocomplete="off">
+      <button id="toggleToken" class="soft-btn" type="button">Show</button>
+    </div>
+
+    <div class="button-row">
+      <button id="connectBtn" class="main-btn" type="button">Connect</button>
+      <button id="disconnectBtn" class="soft-btn" type="button" disabled>Disconnect</button>
+    </div>
+
+    <p id="botInfo" class="muted">Not connected.</p>
+  </section>
+
+  <section class="card">
+    <h2>Destination</h2>
+    <label for="chatId">Chat ID</label>
+    <input id="chatId" type="text" placeholder="Enter your Chat ID">
+  </section>
+
+  <section class="card">
+    <h2>Sending Mode</h2>
+
+    <div class="mode-list">
+      <button id="messageMode" class="mode-option active"
+              type="button" aria-pressed="true">
+        <span class="mode-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </span>
+        <span class="mode-copy">
+          <strong>Message Only</strong>
+          <small>Send text messages only</small>
+        </span>
+        <span class="mode-state">ON</span>
+      </button>
+
+      <button id="mediaMode" class="mode-option"
+              type="button" aria-pressed="false">
+        <span class="mode-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        </span>
+        <span class="mode-copy">
+          <strong>Picture / Video + Message</strong>
+          <small>Send a photo or video with an optional caption</small>
+        </span>
+        <span class="mode-state">OFF</span>
+      </button>
+    </div>
+
+    <div id="messagePanel" class="mode-panel">
+      <label for="message">Message</label>
+      <textarea id="message" rows="5" maxlength="4000"
+                placeholder="Enter your message..."></textarea>
+      <div class="character-count">
+        <span id="charCount">0 / 4000</span>
+      </div>
+    </div>
+
+    <div id="mediaPanel" class="mode-panel hidden">
+      <label for="mediaFile">Upload Picture or Video</label>
+      <input id="mediaFile" type="file" accept="image/*,video/*">
+
+      <div id="fileInfo" class="file-info">No file selected.</div>
+
+      <div id="previewBox" class="preview-box hidden">
+        <img id="imagePreview" alt="Image preview" class="hidden">
+        <video id="videoPreview" controls class="hidden"></video>
+      </div>
+
+      <label for="caption">Caption (Optional)</label>
+      <textarea id="caption" rows="4" maxlength="1024"
+                placeholder="Enter a caption or leave it empty..."></textarea>
+      <div class="character-count">
+        <span id="captionCount">0 / 1024</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Testing Settings</h2>
+
+    <div class="settings-grid">
+      <div>
+        <label for="count">Test Count</label>
+        <input id="count" type="number" min="1" max="5" value="1">
+      </div>
+
+      <div>
+        <label for="interval">Interval (Seconds)</label>
+        <input id="interval" type="number" min="3" max="60" value="3">
+      </div>
+    </div>
+
+    <p class="muted">Maximum 5 test sends per session.</p>
+  </section>
+
+  <section class="card">
+    <h2>Control Center</h2>
+
+    <div class="button-row">
+      <button id="startBtn" class="main-btn" type="button" disabled>Start Test</button>
+      <button id="stopBtn" class="stop-btn" type="button" disabled>Stop</button>
+    </div>
+
+    <div class="progress-track">
+      <div id="bar" class="progress-fill"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <small>Successful</small>
+        <strong id="okCount">0</strong>
+      </div>
+      <div class="stat">
+        <small>Failed</small>
+        <strong id="failCount">0</strong>
+      </div>
+      <div class="stat">
+        <small>Processed</small>
+        <strong id="sentCount">0 / 0</strong>
+      </div>
+    </div>
+
+    <p id="statusText" class="muted">Connect your bot to begin.</p>
+  </section>
+
+  <section class="card">
+    <div class="log-heading">
+      <h2>Activity Log</h2>
+      <button id="clearLog" class="soft-btn" type="button">Clear</button>
+    </div>
+    <div id="log" class="log" role="log" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<footer>
+  Use only bots and chats that you own or are authorized to test.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
+```[cite: 2]
